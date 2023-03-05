@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guoran.dao.RankListMapper">
+  <resultMap id="BaseResultMap" type="com.guoran.domain.RankList">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="songListId" jdbcType="BIGINT" property="songlistid" />
+    <result column="consumerId" jdbcType="BIGINT" property="consumerid" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, songListId, consumerId, score
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from rank_list
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from rank_list
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.guoran.domain.RankList">
+    insert into rank_list (id, songListId, consumerId, 
+      score)
+    values (#{id,jdbcType=BIGINT}, #{songlistid,jdbcType=BIGINT}, #{consumerid,jdbcType=BIGINT}, 
+      #{score,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.guoran.domain.RankList">
+    insert into rank_list
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="songlistid != null">
+        songListId,
+      </if>
+      <if test="consumerid != null">
+        consumerId,
+      </if>
+      <if test="score != null">
+        score,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="songlistid != null">
+        #{songlistid,jdbcType=BIGINT},
+      </if>
+      <if test="consumerid != null">
+        #{consumerid,jdbcType=BIGINT},
+      </if>
+      <if test="score != null">
+        #{score,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.guoran.domain.RankList">
+    update rank_list
+    <set>
+      <if test="songlistid != null">
+        songListId = #{songlistid,jdbcType=BIGINT},
+      </if>
+      <if test="consumerid != null">
+        consumerId = #{consumerid,jdbcType=BIGINT},
+      </if>
+      <if test="score != null">
+        score = #{score,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.guoran.domain.RankList">
+    update rank_list
+    set songListId = #{songlistid,jdbcType=BIGINT},
+      consumerId = #{consumerid,jdbcType=BIGINT},
+      score = #{score,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
