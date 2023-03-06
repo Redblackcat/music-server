@@ -1,9 +1,7 @@
 package com.guoran.controller;
 
-import com.guoran.common.ErrorMessage;
-import com.guoran.common.FatalMessage;
-import com.guoran.common.SuccessMessage;
-import com.guoran.common.WarningMessage;
+import com.guoran.common.*;
+import com.guoran.common.enums.AppHttpCodeEnum;
 import com.guoran.constant.Constants;
 import com.guoran.domain.Consumer;
 import com.guoran.service.ConsumerService;
@@ -13,6 +11,7 @@ import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.ReactiveRedisCallback;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -28,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 @Api
+@RequestMapping("/user")
 @RestController
 public class ConsumerController {
     @Autowired
@@ -44,8 +44,9 @@ public class ConsumerController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/user/add", method = RequestMethod.POST)
-    public Object addUser(HttpServletRequest request) {
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public ResponseResult addUser(HttpServletRequest request) {
+        ResponseResult result = new ResponseResult();
         String userName = request.getParameter("username").trim();
         String password = request.getParameter("password").trim();
         String sex = request.getParameter("sex").trim();
@@ -57,7 +58,7 @@ public class ConsumerController {
         String avator = "/img/avatorImages/user.jpg";
 
         if (consumerService.existUser(userName)) {
-            return new WarningMessage("用户名已注册").getMessage();
+            return result.error(AppHttpCodeEnum.USERNAME_EXIST.getCode(), AppHttpCodeEnum.USERNAME_EXIST.getMsg());
         }
 
         Consumer consumer = new Consumer();
@@ -84,64 +85,66 @@ public class ConsumerController {
         consumer.setCreateTime(new Date());
         consumer.setUpdateTime(new Date());
 
-        try {
-            boolean res = consumerService.addUser(consumer);
-            if (res) {
-                return new SuccessMessage<ObjectUtils.Null>("注册成功").getMessage();
-            } else {
-                return new ErrorMessage("注册失败").getMessage();
-            }
-        } catch (DuplicateKeyException e) {
-            return new FatalMessage(e.getMessage()).getMessage();
+        boolean res = consumerService.addUser(consumer);
+        if (res) {
+            return result.success("注册成功", consumer);
+        } else {
+            return result.error("注册失败");
         }
     }
 
     //TODO:登录状态判断
     @ResponseBody
-    @RequestMapping(value = "/user/login/status", method = RequestMethod.POST)
-    public Object loginStatus(HttpServletRequest req, HttpSession session) {
+    @RequestMapping(value = "/login/status", method = RequestMethod.POST)
+    public ResponseResult loginStatus(HttpServletRequest req, HttpSession session) {
+        ResponseResult result = new ResponseResult();
         String userName = req.getParameter("username");
         String password = req.getParameter("password");
 
         boolean res = consumerService.verityPassword(userName, password);
         if (res) {
             session.setAttribute("username", userName);
-            return new SuccessMessage<List<Consumer>>("登录成功", consumerService.loginStatus(userName)).getMessage();
+            List<Consumer> list = consumerService.loginStatus(userName);
+            return result.success("登录成功", list);
         } else {
-            return new ErrorMessage("用户名或密码错误").getMessage();
+            return result.error("用户名或密码错误");
         }
     }
 
     /**
      * 返回用户列表
      */
-     @RequestMapping(value = "/user", method = RequestMethod.GET)
-     public Object allUser() {
-         return new SuccessMessage<List<Consumer>>(null, consumerService.allUser()).getMessage();
+     @RequestMapping(value = "", method = RequestMethod.GET)
+     public ResponseResult allUser() {
+         ResponseResult result = new ResponseResult();
+         List<Consumer> list = consumerService.allUser();
+         return result.success(list);
      }
 
     /**
      * 返回指定id的用户
      */
-    @RequestMapping(value = "/user/detail", method = RequestMethod.GET)
-    public Object userOfId(HttpServletRequest request) {
+    @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    public ResponseResult userOfId(HttpServletRequest request) {
+        ResponseResult result = new ResponseResult();
         String id = request.getParameter("id");
-
-        return new SuccessMessage<List<Consumer>>(null, consumerService.userOfId(Integer.parseInt(id))).getMessage();
+        List<Consumer> list = consumerService.userOfId(Integer.parseInt(id));
+        return result.success(list);
     }
 
     /**
      * 删除用户
      */
-    @RequestMapping(value = "user/delete", method = RequestMethod.GET)
-    public Object deleteUser(HttpServletRequest request) {
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public ResponseResult deleteUser(HttpServletRequest request) {
+        ResponseResult result = new ResponseResult();
         String id = request.getParameter("id");
 
         boolean res = consumerService.deleteUser(Integer.parseInt(id));
         if (res) {
-            return new SuccessMessage<Null>("删除成功").getMessage();
+            return result.success("删除成功");
         } else {
-            return new ErrorMessage("删除失败").getMessage();
+            return result.error("删除失败");
         }
     }
 
@@ -149,8 +152,10 @@ public class ConsumerController {
      * 更新用户信息
      */
     @ResponseBody
-    @RequestMapping(value = "user/update", method = RequestMethod.POST)
-    public Object updateUser(HttpServletRequest request) {
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public ResponseResult updateUser(HttpServletRequest request) {
+        ResponseResult result = new ResponseResult();
+
         String id = request.getParameter("id").trim();
         String userName = request.getParameter("username").trim();
         String sex = request.getParameter("sex").trim();
@@ -180,9 +185,9 @@ public class ConsumerController {
 
         boolean res = consumerService.updateUser(consumer);
         if (res) {
-            return new SuccessMessage<Null>("修改成功").getMessage();
+            return result.success("修改成功", consumer);
         } else {
-            return new ErrorMessage("修改失败").getMessage();
+            return result.error("修改失败");
         }
     }
 
@@ -190,8 +195,10 @@ public class ConsumerController {
      * 更新用户密码
      */
     @ResponseBody
-    @RequestMapping(value = "/user/updatePassword", method = RequestMethod.POST)
-    public Object updatePassWord(HttpServletRequest request) {
+    @RequestMapping(value = "/updatePassword", method = RequestMethod.POST)
+    public ResponseResult updatePassWord(HttpServletRequest request) {
+        ResponseResult result = new ResponseResult();
+
         String id = request.getParameter("id").trim();
         String userName = request.getParameter("username").trim();
         String oldPassword = request.getParameter("old_password").trim();
@@ -199,18 +206,18 @@ public class ConsumerController {
 
         boolean res = consumerService.verityPassword(userName,oldPassword);
         if (!res) {
-            return new ErrorMessage("密码输入错误").getMessage();
+            return result.error("密码错误");
         }
 
         Consumer consumer = new Consumer();
         consumer.setId(Integer.parseInt(id));
         consumer.setPassword(password);
 
-        boolean result = consumerService.updatePassword(consumer);
-        if (result) {
-            return new SuccessMessage<Null>("密码修改成功").getMessage();
+        boolean flag = consumerService.updatePassword(consumer);
+        if (flag) {
+            return result.success("密码修改成功", consumer);
         } else {
-            return new ErrorMessage("密码修改失败").getMessage();
+            return result.error("密码修改失败");
         }
     }
 
@@ -219,7 +226,8 @@ public class ConsumerController {
      */
     @ResponseBody
     @RequestMapping(value = "/user/avatar/update", method = RequestMethod.POST)
-    public Object updateUserPic(@RequestParam("file") MultipartFile avatorFile, @RequestParam("id") int id) {
+    public ResponseResult updateUserPic(@RequestParam("file") MultipartFile avatorFile, @RequestParam("id") int id) throws IOException {
+        ResponseResult result = new ResponseResult();
         String fileName = System.currentTimeMillis() + avatorFile.getOriginalFilename();
         String filePath = Constants.PROJECT_PATH + System.getProperty("file.separator") + "img" + System.getProperty("file.separator") + "avatorImages";
         File file1 = new File(filePath);
@@ -229,19 +237,16 @@ public class ConsumerController {
 
         File dest = new File(filePath + System.getProperty("file.separator") + fileName);
         String imgPath = "/img/avatorImages/" + fileName;
-        try {
-            avatorFile.transferTo(dest);
-            Consumer consumer = new Consumer();
-            consumer.setId(id);
-            consumer.setAvator(imgPath);
-            boolean res = consumerService.updateUserAvator(consumer);
-            if (res) {
-                return new SuccessMessage<String>("上传成功", imgPath).getMessage();
-            } else {
-                return new ErrorMessage("上传失败").getMessage();
-            }
-        } catch (IOException e) {
-            return new FatalMessage("上传失败" + e.getMessage()).getMessage();
+
+        avatorFile.transferTo(dest);
+        Consumer consumer = new Consumer();
+        consumer.setId(id);
+        consumer.setAvator(imgPath);
+        boolean res = consumerService.updateUserAvator(consumer);
+        if (res) {
+            return result.success();
+        } else {
+            return result.error("上传失败");
         }
     }
 }

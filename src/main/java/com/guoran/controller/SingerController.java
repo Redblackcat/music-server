@@ -2,6 +2,7 @@ package com.guoran.controller;
 
 import com.guoran.common.ErrorMessage;
 import com.guoran.common.FatalMessage;
+import com.guoran.common.ResponseResult;
 import com.guoran.common.SuccessMessage;
 import com.guoran.constant.Constants;
 import com.guoran.domain.Singer;
@@ -24,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @Api
+@RequestMapping("singer")
 @RestController
 public class SingerController {
     @Autowired
@@ -42,8 +44,9 @@ public class SingerController {
      *添加歌手
      */
     @ResponseBody
-    @RequestMapping(value = "/singer/add", method = RequestMethod.POST)
-    public Object addSinger(HttpServletRequest req) {
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public ResponseResult addSinger(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult();
         String name = req.getParameter("  name").trim();
         String sex = req.getParameter("sex").trim();
         String birth = req.getParameter("birth").trim();
@@ -68,61 +71,71 @@ public class SingerController {
 
         boolean res = singerService.addSinger(singer);
         if (res) {
-            return new SuccessMessage<ObjectUtils.Null>("添加成功").getMessage();
+            return result.success("添加成功", singer);
         } else {
-            return new ErrorMessage("添加失败").getMessage();
+            return result.error("添加失败");
         }
     }
 
     /**
      * 删除歌手
      */
-    @RequestMapping(value = "/singer/delete", method = RequestMethod.GET)
-    public Object deleteSinger(HttpServletRequest req) {
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public ResponseResult deleteSinger(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult();
         String id = req.getParameter("id");
 
         boolean res = singerService.deleteSinger(Integer.parseInt(id));
         if (res) {
-            return new SuccessMessage<ObjectUtils.Null>("删除成功").getMessage();
+            return result.success("删除成功");
         } else {
-            return new ErrorMessage("删除失败").getMessage();
+            return result.error("删除失败");
         }
     }
 
     /**
      * 返回所有歌手信息
      */
-    @RequestMapping(value = "/singer", method = RequestMethod.GET)
-    public Object allSinger() {
-        return new SuccessMessage<List<Singer>>(null, singerService.allSinger()).getMessage();
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ResponseResult allSinger() {
+        ResponseResult result = new ResponseResult();
+        List<Singer> list = singerService.allSinger();
+        return result.success(list);
     }
 
     /**
      * 根据歌手名字查找歌手
      */
-    @RequestMapping(value = "/singer/name/detail", method = RequestMethod.GET)
-    public Object singerOfName(HttpServletRequest req) {
+    @RequestMapping(value = "/name/detail", method = RequestMethod.GET)
+    public ResponseResult singerOfName(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult();
         String name = req.getParameter("name").trim();
-
-        return new SuccessMessage<List<Singer>>(null, singerService.singerOfName(name)).getMessage();
+        List<Singer> list = singerService.singerOfName(name);
+        if (!list.isEmpty()) {
+            return result.success("查找成功", list);
+        } else {
+            return result.success("未找到该歌手");
+        }
     }
 
     /**
      * 根据歌手性别查找歌手
      */
-    @RequestMapping(value = "/singer/sex/detail", method = RequestMethod.GET)
-    public Object singerOfSex(HttpServletRequest req) {
+    @RequestMapping(value = "/sex/detail", method = RequestMethod.GET)
+    public ResponseResult singerOfSex(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult();
         String sex = req.getParameter("sex").trim();
-
-        return new SuccessMessage<List<Singer>>(null, singerService.singerOfSex(Integer.parseInt(sex))).getMessage();
+        List<Singer> list = singerService.singerOfSex(Integer.parseInt(sex));
+        return result.success("查找成功", list);
     }
 
     /**
      * 更新歌手信息
      */
     @ResponseBody
-    @RequestMapping(value = "/singer/update", method = RequestMethod.POST)
-    public Object updateSingerMsg(HttpServletRequest req) {
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public ResponseResult updateSingerMsg(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult();
         String id = req.getParameter("id").trim();
         String name = req.getParameter("name").trim();
         String sex = req.getParameter("sex").trim();
@@ -147,9 +160,9 @@ public class SingerController {
 
         boolean res = singerService.updateSingerMsg(singer);
         if (res) {
-            return new SuccessMessage<ObjectUtils.Null>("修改成功").getMessage();
+            return result.success("修改成功");
         } else {
-            return new ErrorMessage("修改失败").getMessage();
+            return result.error("修改失败");
         }
     }
 
@@ -157,8 +170,9 @@ public class SingerController {
      * 更新歌手头像
      */
     @ResponseBody
-    @RequestMapping(value = "/singer/avatar/update", method = RequestMethod.POST)
-    public Object updateSingerPic(@RequestParam("file") MultipartFile avatorFile, @RequestParam("id") int id) {
+    @RequestMapping(value = "/avatar/update", method = RequestMethod.POST)
+    public ResponseResult updateSingerPic(@RequestParam("file") MultipartFile avatorFile, @RequestParam("id") int id) {
+        ResponseResult result = new ResponseResult();
         String fileName = System.currentTimeMillis() + avatorFile.getOriginalFilename();
         String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "img"
                 + System.getProperty("file.separator") + "singerPic";
@@ -177,12 +191,12 @@ public class SingerController {
 
             boolean res = singerService.updateSingerPic(singer);
             if (res) {
-                return new SuccessMessage<String>("上传成功", imgPath).getMessage();
+                return result.success("上传成功", imgPath);
             } else {
-                return new ErrorMessage("上传失败").getMessage();
+                return result.error("上传失败");
             }
         } catch (IOException e) {
-            return new FatalMessage("上传失败" + e.getMessage()).getMessage();
+            return result.error("上传失败");
         }
     }
 }

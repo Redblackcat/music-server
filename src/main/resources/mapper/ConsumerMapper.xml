@@ -35,6 +35,12 @@
     from consumer
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectByUsername" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from consumer
+    where username = #{username,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteUser" parameterType="java.lang.Integer">
     delete from consumer
     where id = #{id,jdbcType=INTEGER}

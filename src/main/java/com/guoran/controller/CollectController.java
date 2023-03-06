@@ -1,11 +1,9 @@
 package com.guoran.controller;
 
-import com.guoran.common.ErrorMessage;
-import com.guoran.common.SuccessMessage;
+import com.guoran.common.ResponseResult;
 import com.guoran.domain.Collect;
 import com.guoran.service.CollectService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,72 +15,87 @@ import java.util.Date;
 import java.util.List;
 
 @Api
+@RequestMapping("/collection")
 @RestController
 public class CollectController {
 
     @Autowired
     private CollectService collectService;
 
-    // 添加收藏的歌曲
+    /**
+     * 添加收藏的歌曲
+     */
     @ResponseBody
-    @RequestMapping(value = "/collection/add", method = RequestMethod.POST)
-    public Object addCollection(HttpServletRequest req) {
-        String user_id = req.getParameter("userId");
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public ResponseResult addCollection(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
+        String userId = req.getParameter("user_id");
         String type = req.getParameter("type");
-        String song_id = req.getParameter("songId");
-        String song_list_id = req.getParameter("songListId");
+        String songId = req.getParameter("song_id");
+        String songListId = req.getParameter("song_list_id");
 
         Collect collect = new Collect();
-        collect.setUserId(Integer.parseInt(user_id));
+        collect.setUserId(Integer.parseInt(userId));
         collect.setType(new Byte(type));
+        //type为0时收藏歌曲，type为1时收藏歌单
         if (new Byte(type) == 0) {
-            collect.setSongId(Integer.parseInt(song_id));
+            collect.setSongId(Integer.parseInt(songId));
         } else if (new Byte(type) == 1) {
-            collect.setSongListId(Integer.parseInt(song_list_id));
+            collect.setSongListId(Integer.parseInt(songListId));
         }
         collect.setCreateTime(new Date());
 
         boolean res = collectService.addCollection(collect);
         if (res) {
-            return new SuccessMessage<Boolean>("收藏成功", true).getMessage();
+            return result.success("添加收藏成功", collect);
         } else {
-            return new ErrorMessage("收藏失败").getMessage();
+            return result.error("添加收藏失败");
         }
     }
 
     // 取消收藏的歌曲
-    @RequestMapping(value = "/collection/delete", method = RequestMethod.DELETE)
-    public Object deleteCollection(HttpServletRequest req) {
-        String user_id = req.getParameter("userId").trim();
-        String song_id = req.getParameter("songId").trim();
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    public ResponseResult deleteCollection(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult();
+        String userId = req.getParameter("user_id").trim();
+        String songId = req.getParameter("song_id").trim();
 
-        boolean res = collectService.deleteCollect(Integer.parseInt(user_id), Integer.parseInt(song_id));
+        boolean res = collectService.deleteCollect(Integer.parseInt(userId), Integer.parseInt(songId));
         if (res) {
-            return new SuccessMessage<Boolean>("取消收藏", false).getMessage();
+            return result.success("取消收藏", "歌曲id: " + songId);
+
         } else {
-            return new ErrorMessage("取消收藏失败").getMessage();
+            return result.error("取消收藏失败");
         }
+
     }
 
     // 是否收藏歌曲
-    @RequestMapping(value = "/collection/status", method = RequestMethod.POST)
-    public Object isCollection(HttpServletRequest req) {
-        String user_id = req.getParameter("userId").trim();
-        String song_id = req.getParameter("songId").trim();
+    @RequestMapping(value = "/status", method = RequestMethod.POST)
+    public ResponseResult isCollection(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
+        String userId = req.getParameter("user_id").trim();
+        String songId = req.getParameter("song_id").trim();
 
-        boolean res = collectService.existSongId(Integer.parseInt(user_id), Integer.parseInt(song_id));
+        boolean res = collectService.existSongId(Integer.parseInt(userId), Integer.parseInt(songId));
         if (res) {
-            return new SuccessMessage<Boolean>("已收藏", true).getMessage();
+            return result.success("已收藏");
         } else {
-            return new SuccessMessage<Boolean>("未收藏", false).getMessage();
+            return result.success("未收藏");
         }
     }
 
     // 返回的指定用户 ID 收藏的列表
-    @RequestMapping(value = "/collection/detail", method = RequestMethod.GET)
-    public Object collectionOfUser(HttpServletRequest req) {
-        String userId = req.getParameter("userId");
+    @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    public ResponseResult collectionOfUser(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
+        String userId = req.getParameter("user_id");
+        List<Collect> list = collectService.collectionOfUser(Integer.parseInt(userId));
+        if (!list.isEmpty()) {
+            return result.success(list);
+        } else {
+            return result.success("该用户未收藏歌曲");
+        }
 
-        return new SuccessMessage<List<Collect>>("取消收藏", collectService.collectionOfUser(Integer.parseInt(userId))).getMessage();
     }
 }

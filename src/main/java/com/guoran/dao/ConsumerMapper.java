@@ -35,4 +35,6 @@ public interface ConsumerMapper {
     int existUsername(String userName);
 
     List<Consumer> loginStatus(String userName);
+
+    Consumer selectByUsername(String username);
 }

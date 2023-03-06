@@ -2,6 +2,7 @@ package com.guoran.controller;
 
 import com.guoran.common.ErrorMessage;
 import com.guoran.common.FatalMessage;
+import com.guoran.common.ResponseResult;
 import com.guoran.common.SuccessMessage;
 import com.guoran.constant.Constants;
 import com.guoran.domain.SongList;
@@ -20,7 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-@Api
+@Api("歌单")
+@RequestMapping("/songList")
 @RestController
 public class SongListController {
 
@@ -40,8 +42,9 @@ public class SongListController {
      * 添加歌单
      */
     @ResponseBody
-    @RequestMapping(value = "/songList/add", method = RequestMethod.POST)
-    public Object addSongList(HttpServletRequest req) {
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public ResponseResult addSongList(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
         String title = req.getParameter("title").trim();
         String introduction = req.getParameter("introduction").trim();
         String style = req.getParameter("style").trim();
@@ -55,61 +58,73 @@ public class SongListController {
 
         boolean res = songListService.addSongList(songList);
         if (res) {
-            return new SuccessMessage<Null>("添加成功").getMessage();
+            return result.success("添加成功", songList);
         } else {
-            return new ErrorMessage("添加失败").getMessage();
+            return result.error("添加失败");
         }
     }
 
     /**
      * 删除歌单
      */
-    @RequestMapping(value = "/songList/delete", method = RequestMethod.GET)
-    public Object deleteSongList(HttpServletRequest req) {
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public ResponseResult deleteSongList(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
         String id = req.getParameter("id");
 
         boolean res = songListService.deleteSongList(Integer.parseInt(id));
         if (res) {
-            return new SuccessMessage<Null>("删除成功").getMessage();
+            return result.success("删除成功");
         } else {
-            return new ErrorMessage("删除失败").getMessage();
+            return result.error("删除失败");
         }
     }
 
     /**
      * 返回所有歌单
      */
-    @RequestMapping(value = "/songList", method = RequestMethod.GET)
-    public Object allSongList() {
-        return new SuccessMessage<List<SongList>>(null, songListService.allSongList()).getMessage();
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ResponseResult allSongList() {
+        ResponseResult result = new ResponseResult<>();
+        List<SongList> list = songListService.allSongList();
+        return result.success(list);
     }
 
     /**
-     * 返回标题包含文字的歌单
+     * 返回标题包含输入文字的歌单
      */
-    @RequestMapping(value = "/songList/likeTitle/detail", method = RequestMethod.GET)
-    public Object songListOfLikeTitle(HttpServletRequest req) {
+    @RequestMapping(value = "/likeTitle/detail", method = RequestMethod.GET)
+    public ResponseResult songListOfLikeTitle(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
         String title = req.getParameter("title").trim();
-
-        return new SuccessMessage<List<SongList>>(null, songListService.likeTitle('%' + title + '%')).getMessage();
+        List<SongList> list = songListService.likeTitle('%' + title + '%');
+        if (list.isEmpty()) {
+            return result.success("未找到指定歌单");
+        }
+        return result.success(list);
     }
 
     /**
      * 返回指定类型的歌单
      */
-    @RequestMapping(value = "/songList/style/detail", method = RequestMethod.GET)
-    public Object songListOfStyle(HttpServletRequest req) {
+    @RequestMapping(value = "/style/detail", method = RequestMethod.GET)
+    public ResponseResult songListOfStyle(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
         String style = req.getParameter("style").trim();
-
-        return new SuccessMessage<List<SongList>>(null, songListService.likeStyle('%' + style + '%')).getMessage();
+        List<SongList> list = songListService.likeStyle('%' + style + '%');
+        if (list.isEmpty()) {
+            return result.success("未找到指定歌单");
+        }
+        return result.success(list);
     }
 
     /**
      * 更新歌单信息
      */
     @ResponseBody
-    @RequestMapping(value = "/songList/update", method = RequestMethod.POST)
-    public Object updateSongListMsg(HttpServletRequest req) {
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public ResponseResult updateSongListMsg(HttpServletRequest req) {
+        ResponseResult result = new ResponseResult<>();
         String id = req.getParameter("id").trim();
         String title = req.getParameter("title").trim();
         String introduction = req.getParameter("introduction").trim();
@@ -123,9 +138,9 @@ public class SongListController {
 
         boolean res = songListService.updateSongListMsg(songList);
         if (res) {
-            return new SuccessMessage<Null>("修改成功").getMessage();
+            return result.success("修改成功", songList);
         } else {
-            return new ErrorMessage("修改失败").getMessage();
+            return result.error("修改失败");
         }
     }
 
@@ -133,8 +148,9 @@ public class SongListController {
      * 更新歌单图片
      */
     @ResponseBody
-    @RequestMapping(value = "/songList/img/update", method = RequestMethod.POST)
-    public Object updateSongListPic(@RequestParam("file") MultipartFile avatorFile, @RequestParam("id") int id) {
+    @RequestMapping(value = "/img/update", method = RequestMethod.POST)
+    public ResponseResult updateSongListPic(@RequestParam("file") MultipartFile avatorFile, @RequestParam("id") int id) {
+        ResponseResult result = new ResponseResult<>();
         String fileName = System.currentTimeMillis() + avatorFile.getOriginalFilename();
         String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "img" + System.getProperty("file.separator") + "songListPic";
         File file1 = new File(filePath);
@@ -152,12 +168,12 @@ public class SongListController {
 
             boolean res = songListService.updateSongListImg(songList);
             if (res) {
-                return new SuccessMessage<String>("上传成功", imgPath).getMessage();
+                return result.success("上传成功", imgPath);
             } else {
-                return new ErrorMessage("上传失败").getMessage();
+                return result.error("上传失败");
             }
         } catch (IOException e) {
-            return new FatalMessage("上传失败" + e.getMessage()).getMessage();
+            return result.error("上传失败");
         }
     }
 }
