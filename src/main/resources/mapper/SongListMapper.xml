@@ -5,13 +5,14 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="title" property="title" jdbcType="VARCHAR" />
     <result column="pic" property="pic" jdbcType="VARCHAR" />
-    <result column="style" property="style" jdbcType="VARCHAR" />
+    <result column="style" property="style" jdbcType="VARCHAR"/>
+    <result column="view_count" property="viewCount" jdbcType="INTEGER"/>
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.guoran.domain.SongList" extends="BaseResultMap">
     <result column="introduction" property="introduction" jdbcType="LONGVARCHAR" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, title, pic, style
+    id, title, pic, style, view_count
   </sql>
   <sql id="Blob_Column_List">
     introduction
@@ -118,6 +119,11 @@
     set title = #{title,jdbcType=VARCHAR},
     pic = #{pic,jdbcType=VARCHAR},
     style = #{style,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateViewCount" parameterType="com.guoran.domain.SongList">
+    update song_list
+    set view_count = #{viewCount,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

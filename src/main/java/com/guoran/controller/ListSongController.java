@@ -1,12 +1,9 @@
 package com.guoran.controller;
 
-import com.guoran.common.ErrorMessage;
 import com.guoran.common.ResponseResult;
-import com.guoran.common.SuccessMessage;
 import com.guoran.domain.ListSong;
 import com.guoran.service.ListSongService;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Api
-@RequestMapping("listSong")
+@RequestMapping("/listSong")
 @RestController
 public class ListSongController {
 

@@ -1,14 +1,10 @@
 package com.guoran.controller;
 
-import com.guoran.common.ErrorMessage;
-import com.guoran.common.FatalMessage;
 import com.guoran.common.ResponseResult;
-import com.guoran.common.SuccessMessage;
 import com.guoran.constant.Constants;
 import com.guoran.domain.Singer;
 import com.guoran.service.SingerService;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 @Api
-@RequestMapping("singer")
+@RequestMapping("/singer")
 @RestController
 public class SingerController {
     @Autowired

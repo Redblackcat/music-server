@@ -6,17 +6,12 @@ import com.guoran.constant.Constants;
 import com.guoran.domain.Consumer;
 import com.guoran.service.ConsumerService;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.redis.core.ReactiveRedisCallback;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;

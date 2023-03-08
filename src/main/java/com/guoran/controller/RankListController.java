@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 @Api
-@RequestMapping("rankList")
+@RequestMapping("/rankList")
 @RestController
 public class RankListController {
 

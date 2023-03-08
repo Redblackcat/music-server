@@ -32,4 +32,6 @@ public interface SongListMapper {
     List<SongList> likeTitle(String title);
 
     List<SongList> likeStyle(String style);
+
+    int updateViewCount(SongList songList);
 }

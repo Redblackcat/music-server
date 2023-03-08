@@ -1,14 +1,11 @@
 package com.guoran.controller;
 
-import com.guoran.common.ErrorMessage;
-import com.guoran.common.FatalMessage;
 import com.guoran.common.ResponseResult;
-import com.guoran.common.SuccessMessage;
 import com.guoran.constant.Constants;
 import com.guoran.domain.SongList;
 import com.guoran.service.SongListService;
+import com.guoran.utils.RedisCache;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +25,9 @@ public class SongListController {
 
     @Autowired
     private SongListService songListService;
+
+    @Autowired
+    private RedisCache redisCache;
 
     @Configuration
     public static class MyPicConfig implements WebMvcConfigurer {
@@ -55,6 +55,7 @@ public class SongListController {
         songList.setIntroduction(introduction);
         songList.setStyle(style);
         songList.setPic(pic);
+        songList.setViewCount(0L);
 
         boolean res = songListService.addSongList(songList);
         if (res) {
@@ -87,6 +88,14 @@ public class SongListController {
     public ResponseResult allSongList() {
         ResponseResult result = new ResponseResult<>();
         List<SongList> list = songListService.allSongList();
+        //从redis中获取歌单浏览量
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                Integer id = list.get(i).getId();
+                Integer viewCount = redisCache.getCacheMapValue("songList:viewCount", id.toString());
+                list.get(i).setViewCount(viewCount.longValue());
+            }
+        }
         return result.success(list);
     }
 
@@ -175,5 +184,17 @@ public class SongListController {
         } catch (IOException e) {
             return result.error("上传失败");
         }
+    }
+
+    /**
+     * 浏览量
+     */
+    @PutMapping("/updateViewCount")
+    public ResponseResult updateViewCount(HttpServletRequest request) {
+        ResponseResult result = new ResponseResult<>();
+        String id =  request.getParameter("id");
+        songListService.updateViewCount(id);
+
+        return result.success();
     }
 }

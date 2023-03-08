@@ -3,6 +3,7 @@ package com.guoran.service.impl;
 import com.guoran.dao.SongListMapper;
 import com.guoran.domain.SongList;
 import com.guoran.service.SongListService;
+import com.guoran.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,9 @@ public class SongListServiceImpl implements SongListService {
 
     @Autowired
     private SongListMapper songListMapper;
+
+    @Autowired
+    private RedisCache redisCache;
 
     @Override
     public boolean updateSongListMsg(SongList songList) {
@@ -37,6 +41,13 @@ public class SongListServiceImpl implements SongListService {
     @Override
     public List<SongList> likeStyle(String style) {
         return songListMapper.likeStyle(style);
+    }
+
+    @Override
+    public boolean updateViewCount(String id) {
+        //更新redis中对应id的浏览量
+        redisCache.incrementCacheMapValue("songList:viewCount",id,1);
+        return true;
     }
 
     @Override

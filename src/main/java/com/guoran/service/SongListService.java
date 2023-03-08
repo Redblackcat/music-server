@@ -19,4 +19,6 @@ public interface SongListService {
     List<SongList> likeTitle(String title);
 
     List<SongList> likeStyle(String style);
+
+    boolean updateViewCount(String id);
 }

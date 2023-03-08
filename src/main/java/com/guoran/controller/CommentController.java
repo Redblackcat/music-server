@@ -1,12 +1,10 @@
 package com.guoran.controller;
 
-import com.guoran.common.ErrorMessage;
 import com.guoran.common.ResponseResult;
-import com.guoran.common.SuccessMessage;
 import com.guoran.domain.Comment;
 import com.guoran.service.CommentService;
+import com.guoran.utils.RedisCache;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

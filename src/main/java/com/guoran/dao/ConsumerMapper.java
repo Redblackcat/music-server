@@ -37,4 +37,6 @@ public interface ConsumerMapper {
     List<Consumer> loginStatus(String userName);
 
     Consumer selectByUsername(String username);
+
+    Consumer findUserByName(String username);
 }
