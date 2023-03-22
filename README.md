@@ -1,0 +1,3 @@
+# musicplayer-backend
+基于springboot和mybatis的音乐播放平台后端
+数据库用到了mysql和redis
