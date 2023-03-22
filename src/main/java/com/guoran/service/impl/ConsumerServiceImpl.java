@@ -1,5 +1,7 @@
 package com.guoran.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.guoran.dao.ConsumerMapper;
 import com.guoran.domain.Consumer;
 import com.guoran.domain.LoginUser;
@@ -124,8 +126,9 @@ public class ConsumerServiceImpl implements ConsumerService {
     public void logout() {
         //获取SecurityContextHolder中的用户id
         UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
-        Integer id = loginUser.getConsumer().getId();
+        //LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        JSONObject loginUser = (JSONObject) authentication.getPrincipal();
+        Integer id = (Integer) loginUser.get("id");
         //删除redis中的值
         redisCache.deleteObject("login:" + id);
     }

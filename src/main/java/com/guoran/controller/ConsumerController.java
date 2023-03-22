@@ -54,7 +54,6 @@ public class ConsumerController {
     @RequestMapping("/logout")
     public ResponseResult logout() {
         ResponseResult result = new ResponseResult<>();
-
         consumerService.logout();
         log.info("执行退出登录操作");
         return result.success("退出登录");

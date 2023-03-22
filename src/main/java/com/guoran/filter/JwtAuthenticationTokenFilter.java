@@ -1,5 +1,6 @@
 package com.guoran.filter;
 
+import com.alibaba.fastjson.JSONObject;
 import com.guoran.domain.LoginUser;
 import com.guoran.utils.JwtUtil;
 import com.guoran.utils.RedisCache;
@@ -51,7 +52,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
         //从redis中获取用户信息
         String redisKey = "login:" + userid;
-        LoginUser loginUser = redisCache.getCacheObject(redisKey);
+        JSONObject loginUser = redisCache.getCacheObject(redisKey);
         if (Objects.isNull(loginUser)) {
             throw new RuntimeException("用户未登录");
         }
