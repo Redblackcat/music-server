@@ -5,6 +5,8 @@ import com.guoran.domain.Consumer;
 import java.util.List;
 
 public interface ConsumerService {
+    Object login(Consumer consumer);
+
     boolean addUser(Consumer consumer);
 
     List<Consumer> allUser();
@@ -23,4 +25,6 @@ public interface ConsumerService {
     boolean existUser(String userName);
 
     List<Consumer> loginStatus(String userName);
+
+    void logout();
 }

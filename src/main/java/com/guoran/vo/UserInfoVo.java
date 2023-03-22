@@ -1,17 +1,15 @@
-package com.guoran.domain;
+package com.guoran.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
 @Data
-public class Consumer {
+@Accessors(chain = true)
+public class UserInfoVo {
     private Integer id;
-
     private String username;
-
-    private String password;
-
     private Byte sex;
 
     private String phoneNum;
@@ -26,7 +24,4 @@ public class Consumer {
 
     private String avator;
 
-    private Date createTime;
-
-    private Date updateTime;
 }

@@ -3,6 +3,7 @@ package com.guoran.job;
 import com.guoran.dao.SongListMapper;
 import com.guoran.domain.SongList;
 import com.guoran.utils.RedisCache;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 
 @Component
+@Slf4j
 public class RedisJob {
     @Autowired
     private RedisCache redisCache;
@@ -35,12 +37,13 @@ public class RedisJob {
 
         List<SongList> songLists = viewCountMap.entrySet()
                 .stream()
-                .map(entry -> new SongList(Integer.valueOf(entry.getKey()), entry.getValue().longValue()))
+                .map(entry -> new SongList(Integer.valueOf(entry.getKey()), entry.getValue()))
                 .collect(Collectors.toList());
 
         //更新到数据库中
         for (int i = 0; i < songLists.size(); i++) {
             songListMapper.updateViewCount(songLists.get(i));
         }
+        log.info("数据库中歌单浏览量更新完毕");
     }
 }

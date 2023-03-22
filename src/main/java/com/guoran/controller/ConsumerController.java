@@ -6,6 +6,7 @@ import com.guoran.constant.Constants;
 import com.guoran.domain.Consumer;
 import com.guoran.service.ConsumerService;
 import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,14 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Api
 @RequestMapping("/user")
 @RestController
+@Slf4j
 public class ConsumerController {
     @Autowired
     ConsumerService consumerService;
@@ -37,6 +41,24 @@ public class ConsumerController {
         }
     }
 
+    @PostMapping("/login")
+    public ResponseResult login(@RequestBody Consumer consumer) {
+        ResponseResult result = new ResponseResult<>();
+
+        Object map = consumerService.login(consumer);
+        log.info(map.toString());
+
+        return result.success("登录成功", map);
+    }
+
+    @RequestMapping("/logout")
+    public ResponseResult logout() {
+        ResponseResult result = new ResponseResult<>();
+
+        consumerService.logout();
+        log.info("执行退出登录操作");
+        return result.success("退出登录");
+    }
 
     @ResponseBody
     @RequestMapping(value = "/add", method = RequestMethod.POST)

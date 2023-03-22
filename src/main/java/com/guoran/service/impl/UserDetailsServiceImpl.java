@@ -12,19 +12,22 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 @Service
-public class UserDetailServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
+
     @Autowired
     private ConsumerMapper consumerMapper;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //根据用户名查询用户信息
+
+        //查询用户信息
         Consumer consumer = consumerMapper.selectByUsername(username);
-        //判断是否查到用户 若没查到抛出异常
         if (Objects.isNull(consumer)) {
-            throw new RuntimeException("用户不存在");
+            throw new RuntimeException("用户名或密码错误");
         }
-        //返回用户信息
-        //TODO 查询权限信息封装
+        //TODO 查询对应的权限信息
+
+        //把数据封装成UserDetails返回
         return new LoginUser(consumer);
     }
 }

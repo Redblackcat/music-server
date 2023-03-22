@@ -12,9 +12,9 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginUser implements UserDetails {
+
     private Consumer consumer;
 
-    // 权限集合
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

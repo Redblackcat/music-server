@@ -24,6 +24,7 @@ import java.util.List;
 @Configuration
 public class WebCharacterEncodingFilter implements WebMvcConfigurer {
 
+
     /**
      * 乱码处理
      */
