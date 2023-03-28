@@ -1,3 +1,5 @@
 # musicplayer-backend
 基于springboot和mybatis的音乐播放平台后端
+使用springsecurity+jwt做登录功能
 数据库用到了mysql和redis
+
